@@ -1,4 +1,5 @@
 import 'dart:html';
+import 'dart:math';
 
 import 'package:dio/dio.dart';
 import 'package:mobx/mobx.dart';
@@ -13,12 +14,23 @@ abstract class _PostViewModelBase with Store{
   
   final url = "https://jsonplaceholder.typicode.com/posts";
 
+  @observable
+  bool isServiceRequestLoading = false;
+
   @action
   Future<void> getAllPost() async{
+    changeRequest();
     final response = await Dio().get(url);
     
     if( response.statusCode == HttpStatus.ok){
-      print(response.data);
+      final responseData = response.data as List<Map>;
+      posts = responseData.map((e) => Post.fromMap(e)).toList();
     }
+    changeRequest();
+  }
+
+  @action
+  void changeRequest(){
+    isServiceRequestLoading = !isServiceRequestLoading;
   }
 }
